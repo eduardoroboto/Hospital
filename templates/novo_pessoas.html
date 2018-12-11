@@ -1,0 +1,80 @@
+{% extends "template.html" %}
+
+{% block conteudo %}
+
+    <div class="row">
+        <form class="col s12"
+              action="{% if request.path == url_for('adicionar_cliente') %} {{ url_for('criar_cliente') }}{% endif %}{% if request.path == url_for('adicionar_medico') %}{{ url_for('cria_medico') }}
+{% endif %}" method="POST">
+
+            <div class="row">
+                <div class="input-field col s6">
+                    <input placeholder="nome" id="nome" name="nome" type="text" class="validate">
+                    <label for="nome">Nome</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="data_de_nascimento" name="data_de_nascimento" type="text" class="datepicker">
+                    <label for="data_de_nascimento">Data de nascimento</label>
+                </div>
+            </div>
+
+            {% if request.path == url_for('adicionar_medico') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="salario" name="salario" type="text" class="validate">
+                        <label for="Salário">Salário</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="nome_de_usuario" name="nome_de_usuario" type="text" class="validate">
+                        <label for="nome_de_usuario">Nome de usuario</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="senha" name="senha" type="password" class="validate">
+                        <label for="senha">Senha</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="crm" name="crm" type="text" class="validate">
+                        <label for="crm">CRM</label>
+                    </div>
+                </div>
+
+            {% endif %}
+
+            {% if request.path == url_for('adicionar_cliente') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="cpf" name="cpf" type="text" class="validate">
+                        <label for="cpf">CPF</label>
+                    </div>
+                </div>
+
+                <div class="input-field col s12">
+                    <select id='medico_cliente' name='medico_cliente'>
+                        <option value="" disabled selected>Escolha o médico para o cliente</option>
+                        {% for medico in medicos %}
+                            <option value="{{ medico.crm }}">{{ medico.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            {% endif %}
+
+            <button class="btn waves-effect blue col s2 offset-l10"
+                    type="submit" name="action">Criar
+                <i class="material-icons right">send</i>
+            </button>
+        </form>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+
+{% block  conteudo %}
+
+    <form method="POST" action="{{ url_for('autenticacao') }}">
+        <div class="abaixar row">
+            <form class="container">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Nome de Usuário" id="nome_de_usuario" name="nome_de_usuario" type="text"
+                               class="validate">
+                        <label for="nome_de_usuario">Nome de Usuário</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="password" type="password" name="senha" class="validate">
+                        <label for="">Password</label>
+                    </div>
+                </div>
+                <button class="btn waves-effect blue col s2 offset-l10"
+                        type="submit" name="action">Enviar
+                    <i class="material-icons right">send</i>
+                </button>
+            </form>
+        </div>
+        </div>
+    </form>
+{% endblock %}

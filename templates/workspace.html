@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+
+{% block conteudo %}
+
+    <div class="row">
+
+        <div class="collection col s10 offset-l1">
+            {% for opcao in lista %}
+                <a href="{{ url_for( opcao ) }}" class="collection-item center">{{ opcao.title() }}</a>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+{% endblock %}

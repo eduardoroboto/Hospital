@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+    <title>{{ titulo }}</title>
+
+    <!-- CSS  -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="{{ url_for('static', filename='materialize.css') }}" type="text/css" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='style.css') }}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="blue darken-4" role="navigation">
+    <div class="nav-wrapper container">
+        <a id="logo-container" href="#" class="brand-logo center">{{ titulo }}</a>
+
+        {% if 'Hospital' not in titulo %}
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+
+                <li><a class="left" href="{{ url_for( 'area_de_trabalho' ) }}">Inicio</a></li>
+                <li><a class="left" href="{{ url_for( 'confirmacao', destino=url_for('sair'), origem=request.path ) }}">
+                    Sair </a></li>
+
+            </ul>
+        {% endif %}
+
+    </div>
+</nav>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class=flashes>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+<div class="abaixar container">
+
+    {% block conteudo %}
+
+
+    {% endblock %}
+
+
+</div>
+
+
+<!--  Scripts-->
+<script src="{{ url_for('static', filename='jquery.js') }}"></script>
+<script src="{{ url_for('static',filename='materialize.js') }}"></script>
+<script src="{{ url_for('static',filename='init.js') }}"></script>
+
+</body>
+</html>

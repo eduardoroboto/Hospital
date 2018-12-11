@@ -1,0 +1,87 @@
+{% extends "template.html" %}
+
+
+{% block  conteudo %}
+    <div class="row">
+        <form class="col s12"
+              action="{% if request.path == url_for('adicionar_cirurgia') %} {{ url_for('criar_cirurgia') }}{% endif %}{% if request.path == url_for('adicionar_sala') %}{{ url_for('criar_sala') }}
+{% endif %}" method="POST">
+
+            {% if request.path == url_for('adicionar_sala') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero" id="numero" name="numero" type="text" class="validate">
+                        <label for="Numero">Numero</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero" id="andar" name="andar" type="text" class="validate">
+                        <label for="Andar">Andar</label>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if request.path == url_for('adicionar_cirurgia') %}
+                <div class="row">
+
+                <div class="input-field col s12">
+                    <select id='medico_cirurgia' name='medico_cirurgia'>
+                        <option value="" disabled selected>Medico para a cirurgua</option>
+                        {% for medico in medicos %}
+                            <option value="{{ medico.crm }}">{{ medico.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="input-field col s12">
+                    <select id='paciente_cirurgia' name='paciente_cirurgia'>
+                        <option value="" disabled selected>Escolha o paciente para a cirurgia</option>
+                        {% for paciente in clientes %}
+                            <option value="{{ paciente.cpf }}">{{ paciente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+
+                    <div class="row">
+
+                        <div class="input-field col s12">
+                            <select id='sala_cirurgia' name='sala_cirurgia'>
+                                <option value="" disabled selected>Escolha a Sala</option>
+                                {% for sala in salas %}
+                                    <option value="{{ sala.id }}">{{ sala.andar + sala.numero }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="input-field col s6">
+                            <input id="data_da_cirurgia" name="data_da_cirurgia" type="text" class="datepicker">
+                            <label for="data_da_cirurgia">Data da cirurgia</label>
+                        </div>
+                    </div>
+
+                    <div class="input-field col s6">
+                        <input id="hora_da_cirurgia" name="hora_da_cirurgia" type="text" class="timepicker">
+                        <label for="hora_da_cirurgia">Hora da cirurgia</label>
+                    </div>
+                </div>
+
+
+
+
+
+
+            {% endif %}
+
+            <button class="btn waves-effect blue col 5 offset-l10"
+                    type="submit" name="action">Criar
+                <i class="material-icons right">send</i>
+            </button>
+        </form>
+
+
+    </div>
+{% endblock %}

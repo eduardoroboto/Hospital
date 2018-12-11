@@ -1,0 +1,102 @@
+{% extends "template.html" %}
+
+
+{% block  conteudo %}
+    <div class="row">
+        <form class="col s12"
+              action="{% if request.path == url_for('editar_cirurgia') %} {{ url_for('atualiza_cirurgia', id=id) }}{% endif %}{% if request.path == url_for('editar_sala') %}{{ url_for('atualizar_sala', id=id) }}
+{% endif %}" method="POST">
+
+            {% if request.path == url_for('editar_sala') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero" id="numero" name="numero" type="text" value="{{ objeto.numero }}"
+                               class="validate">
+                        <label for="Numero">Numero</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero" id="andar" name="andar" type="text" value="{{ objeto.andar }}"
+                               class="validate">
+                        <label for="Andar">Andar</label>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if request.path == url_for('editar_cirurgia') %}
+                <div class="row">
+
+                <div class="input-field col s12">
+                    <select id='medico_cirurgia' name='medico_cirurgia'>
+                        {% for medico in medicos %}
+                            {% if medico.crm == objeto.medico %}
+                                <option selected value="{{ medico.crm }}">{{ medico.nome }}</option>
+                            {% else %}
+                                <option value="{{ medico.crm }}">{{ medico.nome }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="input-field col s12">
+                    <select id='paciente_cirurgia' name='paciente_cirurgia'>
+                        {% for paciente in clientes %}
+                            {% if paciente.cpf == objeto.cliente %}
+                                <option selected value="{{ paciente.cpf }}">{{ paciente.nome }}</option>
+                            {% else %}
+                                <option value="{{ paciente.cpf }}">{{ paciente.nome }}</option>
+
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+
+                    <div class="row">
+
+                        <div class="input-field col s12">
+                            <select id='sala_cirurgia' name='sala_cirurgia'>
+                                {% for sala in salas %}
+                                    {% if sala.id == objeto.sala %}
+                                        <option selected value="{{ sala.id }}">{{ sala.andar + sala.numero }}</option>
+                                    {% else %}
+                                        <option value="{{ sala.id }}">{{ sala.andar + sala.numero }}</option>
+
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div class="input-field col s6">
+                            <input id="data_da_cirurgia" name="data_da_cirurgia" type="text"
+                                   value="{{ objeto.data.strftime('%d-%m-%Y') }}" class="datepicker">
+                            <label for="data_da_cirurgia">Data da cirurgia</label>
+                        </div>
+                    </div>
+
+                    <div class="input-field col s6">
+                        <input id="hora_da_cirurgia" name="hora_da_cirurgia" type="text"
+                               value="{{ objeto.hora.strftime('%H:%M') }}" class="timepicker">
+                        <label for="hora_da_cirurgia">Hora da cirurgia</label>
+                    </div>
+                </div>
+
+
+
+
+
+
+            {% endif %}
+
+            <button class="btn waves-effect blue col 5 offset-l10"
+                    type="submit" name="action">Atualizar
+                <i class="material-icons right">send</i>
+            </button>
+        </form>
+
+
+    </div>
+{% endblock %}

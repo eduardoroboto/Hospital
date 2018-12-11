@@ -1,0 +1,71 @@
+{% extends "template.html" %}
+
+{% block conteudo %}
+
+    <div class="row">
+
+        <ul class="collapsible col s8 offset-s2">
+            {% if cirurgias %}
+                {% for cirurgia in cirurgias %}
+                    <li>
+                        <div class="collapsible-header"><i
+                                class="material-icons">healing</i> {{ cirurgia.data.strftime('%d/%m/%Y') + ' - ' + cirurgia.hora.strftime('%H:%M') }}
+                        </div>
+                        <div class="collapsible-body">
+                            <ul class="collection">
+                                <li class="collection-item"> CPF: {{ cirurgia.cliente }}</li>
+                                <li class="collection-item"> CRM: {{ cirurgia.medico }}</li>
+                                <li class="collection-item"> Sala: {{ cirurgia.sala }}</li>
+                                <li class="collection-item"> CPF: {{ cirurgia.cliente }}</li>
+                                {% if cirurgia.feedback %}
+                                    <li class="collection-item">Feedback: {{ cirurgia.feedback }}</li>
+                                {% endif %}
+
+                                <li class="collection-item"><a href="{{ url_for('editar_cirurgia', id=cirurgia.id) }}">Editar</a>
+                                    <a
+                                            href="{{ url_for('deletar_cirurgia', id=cirurgia.id) }}">Deletar</a></li>
+
+
+                            </ul>
+                        </div>
+                    </li>
+                {% endfor %}
+
+
+            {% endif %}
+
+            {% if salas %}
+                {% for sala in salas %}
+                    <li>
+                        <div class="collapsible-header"><i class="material-icons">home</i> {{ sala.id }}
+                        </div>
+                        <div class="collapsible-body">
+                            <ul class="collection">
+                                <li class="collection-item">Andar: {{ sala.andar }}</li>
+                                <li class="collection-item">Numero: {{ sala.numero }}</li>
+                                <li class="collection-item"><a
+                                        href="{{ url_for('editar_sala', id=sala.id) }}">Editar</a>
+                                    <a
+                                            href="{{ url_for('deletar_sala', id=sala.id) }}">Deletar</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                {% endfor %}
+
+            {% endif %}
+
+        </ul>
+
+        {% if salas is defined %}
+            <a href="{{ url_for('adicionar_sala') }}"
+               class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
+        {% endif %}
+
+        {% if cirurgias is defined %}
+            <a href="{{ url_for('adicionar_cirurgia') }}" class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
+
+        {% endif %}
+
+    </div>
+
+{% endblock %}

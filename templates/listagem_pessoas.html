@@ -1,0 +1,86 @@
+{% extends "template.html" %}
+
+{% block conteudo %}
+
+    <div class="row">
+
+
+        <ul class="collapsible col s8 offset-s2">
+            {% for pessoa in pessoas %}
+
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">tag_faces</i> {{ pessoa.nome.title() }}
+                    </div>
+                    <div class="collapsible-body">
+                        <ul class="collection">
+                            <li class="collection-item">{{ 'Data de nascimento: ' + pessoa.data_de_nascimento.strftime('%d/%m/%Y') }}</li>
+
+                            {% if pessoa.cpf %}
+                                <li class="collection-item">{{ 'CPF: ' + pessoa.cpf }}</li>
+                            {% endif %}
+
+                            {% if pessoa.salario %}
+                                <li class="collection-item"> Salário: R${{ pessoa.salario }}</li>
+                            {% endif %}
+
+                            {% if pessoa.nome_de_usuario %}
+                                <li class="collection-item">{{ 'Usuário: ' + pessoa.nome_de_usuario }}</li>
+                            {% endif %}
+
+                            {% if pessoa.matricula %}
+                                <li class="collection-item">{{ 'Matricula: ' + pessoa.matricula }}</li>
+                            {% endif %}
+
+                            {% if pessoa.crm %}
+                                <li class="collection-item">{{ 'CRM: ' + pessoa.crm }}</li>
+                            {% endif %}
+
+                            {% if pessoa.lista_de_clientes %}
+                                <ul class="collapsible z-depth-0">
+                                    <li>
+                                        <div class="collapsible-header">Lista de Clientes</div>
+                                        <div class="collapsible-body">
+                                            <ul class="collection">
+                                                {% for cliente in pessoa.lista_de_clientes %}
+                                                    <li class="collection-item">{{ 'Cliente: ' + cliente }}</li>
+                                                {% endfor %}
+
+                                            </ul>
+
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            {% endif %}
+
+                            {% if pessoa.cpf %}
+                                <li class="collection-item"><a href="{{ url_for('editar_cliente', id=pessoa.cpf) }}">Editar</a>
+                                    <a
+                                            href="{{ url_for('deletar_cliente', id=pessoa.cpf) }}">Deletar</a></li>
+                            {% endif %}
+
+                            {% if pessoa.crm %}
+                                <li class="collection-item"><a href="{{ url_for('editar_medico', id=pessoa.crm) }}">Editar</a>
+                                    <a
+                                            href="{{ url_for('deletar_medico', id=pessoa.crm) }}">Deletar</a></li>
+                            {% endif %}
+
+
+                        </ul>
+                    </div>
+                </li>
+
+            {% endfor %}
+
+
+        </ul>
+
+
+        <a href="
+
+                {% if titulo == 'Clientes' %}{{ url_for('adicionar_cliente') }}{% endif %}{% if titulo == 'Medicos' %}{{ url_for('adicionar_medico') }}{% endif %}"
+           class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
+
+    </div>
+
+{% endblock %}

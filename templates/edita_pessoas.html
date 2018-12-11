@@ -1,0 +1,89 @@
+{% extends "template.html" %}
+
+{% block conteudo %}
+
+    <div class="row">
+        <form class="col s12"
+              action="{% if request.path == url_for('editar_cliente') %} {{ url_for('atualiza_cliente', id=id) }}{% endif %}{% if request.path == url_for('editar_medico') %}{{ url_for('atualiza_medico' , id=id) }}
+{% endif %}" method="POST">
+
+            <div class="row">
+                <div class="input-field col s6">
+                    <input placeholder="nome" id="nome" name="nome" type="text" value="{{ pessoa.nome }}"
+                           class="validate">
+                    <label for="nome">Nome</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="data_de_nascimento" name="data_de_nascimento" type="text"
+                           value="{{ pessoa.data_de_nascimento.strftime('%d-%m-%Y') }}" class="datepicker">
+                    <label for="data_de_nascimento">Data de nascimento</label>
+                </div>
+            </div>
+
+            {% if request.path == url_for('editar_medico') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="salario" name="salario" type="text" value="{{ pessoa.salario }}" class="validate">
+                        <label for="Salário">Salário</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="nome_de_usuario" name="nome_de_usuario" type="text"
+                               value="{{ pessoa.nome_de_usuario }}" class="validate">
+                        <label for="nome_de_usuario">Nome de usuario</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="senha" name="senha" type="password" value="{{ pessoa.senha }}" class="validate">
+                        <label for="senha">Senha</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="crm" name="crm" type="text" value="{{ pessoa.crm }}" class="validate">
+                        <label for="crm">CRM</label>
+                    </div>
+                </div>
+
+            {% endif %}
+
+            {% if request.path == url_for('editar_cliente') %}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="cpf" name="cpf" type="text" value="{{ pessoa.cpf }}" class="validate">
+                        <label for="cpf">CPF</label>
+                    </div>
+                </div>
+
+                <div class="input-field col s12">
+                    <select id='medico_cliente' name='medico_cliente'>
+                        {% for medico in medicos %}
+                            {% if pessoa in medico.lista_de_clientes %}
+
+                                <option selected value="{{ medico.crm }}">{{ medico.nome }}</option>
+
+                            {% else %}
+                                <option value="{{ medico.crm }}">{{ medico.nome }}</option>
+                            {% endif %}
+
+                        {% endfor %}
+                    </select>
+                </div>
+
+            {% endif %}
+
+            <button class="btn waves-effect blue col s2 offset-l10"
+                    type="submit" name="action">Atualizar
+                <i class="material-icons right">send</i>
+            </button>
+        </form>
+    </div>
+
+
+
+{% endblock %}
