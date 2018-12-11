@@ -9,7 +9,7 @@ app.secret_key = secrets.secret_key
 
 ed = Cliente('Eduardo', '09-05-1996', '058')
 admin = Gerente('Pele', '05-09-1984', 1999, 'admin', '123', '0064')
-dr = Medico('Drauzio', '10-10-1949', 20000, 'varela', 'kkk', '100')
+dr = Medico('Drauzio', '10-10-1949', 20000, 'varela', '123', '100')
 dr.adicionar_cliente(ed)
 sl = Sala(666, 0)
 cr = Cirurgia('058', '100', '6600', '30-12-2018', '10:10')
@@ -31,22 +31,30 @@ def login():  # Tela de login que vai confimar se é um Médico ou Gerente, e se
 def autenticacao():
     usuario = request.form['nome_de_usuario']
     senha = request.form['senha']
+    for medico in lista_medicos:
+        print('Etapa 0')
+        if medico.nome_de_usuario == usuario:
+            print('Etapa 1')
+            if medico.senha == senha:
+                print('Etapa 2')
+                session['medico_logado'] = usuario
+                flash(usuario + ' logou com sucesso')
+                return redirect(url_for('area_de_trabalho'))
+            else:
+                flash('Você errou algo, tente novamente!')
+                return redirect(url_for('login'))
+                print('Etapa 3')
+
     for gerente in lista_gerentes:
         if gerente.nome_de_usuario == usuario:
             if gerente.senha == senha:
                 session['gerente_logado'] = usuario
                 flash(usuario + ' logou com sucesso')
                 return redirect(url_for('area_de_trabalho'))
+            else:
+                flash('Você errou algo, tente novamente!')
+                return redirect(url_for('login'))
 
-    for medico in lista_medicos:
-        if medico.nome_de_usuario == usuario:
-            if medico.senha == senha:
-                session['medico_logado'] = usuario
-                flash(usuario + 'logou com sucesso')
-                return redirect(url_for('area_de_trabalho'))
-
-    flash('Não logado, tente novamente!')
-    return redirect(url_for('login'))
 
 
 @app.route('/logout')
@@ -60,21 +68,17 @@ def sair():
 @app.route('/workspace')
 def area_de_trabalho():
     if 'gerente_logado' not in session or session['gerente_logado'] == None:
-        flash('Não logado, tente novamente!')
-        return redirect(url_for('login'))
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            for medico in lista_medicos:
+                if medico.nome_de_usuario == session['medico_logado']:
+                    return render_template('workspace.html', titulo='Workspace', lista=medico.menu)
     else:
         for gerente in lista_gerentes:
             if gerente.nome_de_usuario == session['gerente_logado']:
                 return render_template('workspace.html', titulo='Workspace', lista=gerente.menu)
-
-    if 'medico_logado' not in session or session['medico_logado'] == None:
-        flash('Não logado, tente novamente!')
-        return redirect(url_for('login'))
-    else:
-        for medico in lista_medicos:
-            if medico.nome_de_usuario == session['medico_logado']:
-                return render_template('workspace.html', titulo='Workspace', lista=medico.menu)
-
 
 @app.route('/confirmacao')
 def confirmacao():
@@ -87,8 +91,21 @@ def confirmacao():
 @app.route('/listarCirurgia')
 def cirurgias():  # todo Confirmação se é o Gerente ou o medico
 
-    # todo logica para popular a variavel objeto com o resultado de dois sqls diferente caso médico ou gerente
-    return render_template('listagem_objetos.html', titulo='Cirurgias', cirurgias=lista_cirurgias)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            cirurgias_do_medico = []
+            for cirurgia in lista_cirurgias:
+                for medico in lista_medicos:
+                    if cirurgia.medico == medico.crm:
+                        cirurgias_do_medico.append(cirurgia)
+            return render_template('listagem_objetos.html', titulo='Cirurgias do Medico', cirurgias=cirurgias_do_medico)
+
+
+    else:
+        return render_template('listagem_objetos.html', titulo='Cirurgias', cirurgias=lista_cirurgias)
 
 
 @app.route('/listarGerente')
@@ -333,6 +350,11 @@ def deletar_sala():
             lista_salas.remove(sala)
 
     return redirect(url_for('salas'))
+
+
+@app.route('/feedback')
+def dar_feedback():
+    pass
 
 
 if __name__ == '__main__':

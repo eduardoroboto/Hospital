@@ -66,7 +66,7 @@ class Gerente(Funcionario):
     def __init__(self, nome, data_de_nascimento, salario, nome_de_usuario, senha, matricula):
         super().__init__(nome, data_de_nascimento, salario, nome_de_usuario, senha)
         self.__matricula = matricula
-        self.__menu = ('cirurgias', 'salas', 'medicos', 'clientes')
+        self.__menu = ('cirurgias', 'salas', 'gerentes', 'medicos', 'clientes')
 
     @property
     def matricula(self):

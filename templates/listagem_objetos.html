@@ -21,9 +21,18 @@
                                     <li class="collection-item">Feedback: {{ cirurgia.feedback }}</li>
                                 {% endif %}
 
+                                {% if 'medico_logado' not in session or session['medico_logado'] == None %}
+
                                 <li class="collection-item"><a href="{{ url_for('editar_cirurgia', id=cirurgia.id) }}">Editar</a>
                                     <a
                                             href="{{ url_for('deletar_cirurgia', id=cirurgia.id) }}">Deletar</a></li>
+
+                                {% else %}
+
+                                    <li class="collection-item">
+                                    <a href="{{ url_for('editar_cirurgia', id=cirurgia.id) }}">Editar</a>
+
+                                {% endif %}
 
 
                             </ul>

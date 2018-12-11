@@ -75,11 +75,13 @@
 
         </ul>
 
-
-        <a href="
+        {% if titulo != 'Gerentes' %}
+            <a href="
 
                 {% if titulo == 'Clientes' %}{{ url_for('adicionar_cliente') }}{% endif %}{% if titulo == 'Medicos' %}{{ url_for('adicionar_medico') }}{% endif %}"
            class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
+
+        {% endif %}
 
     </div>
 
