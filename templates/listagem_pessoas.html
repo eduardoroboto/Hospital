@@ -53,16 +53,22 @@
                                 </ul>
                             {% endif %}
 
-                            {% if pessoa.cpf %}
-                                <li class="collection-item"><a href="{{ url_for('editar_cliente', id=pessoa.cpf) }}">Editar</a>
-                                    <a
-                                            href="{{ url_for('deletar_cliente', id=pessoa.cpf) }}">Deletar</a></li>
-                            {% endif %}
+                            {% if 'medico_logado' not in session or session['medico_logado'] == None %}
 
-                            {% if pessoa.crm %}
-                                <li class="collection-item"><a href="{{ url_for('editar_medico', id=pessoa.crm) }}">Editar</a>
-                                    <a
-                                            href="{{ url_for('deletar_medico', id=pessoa.crm) }}">Deletar</a></li>
+
+                                {% if pessoa.cpf %}
+                                    <li class="collection-item"><a
+                                            href="{{ url_for('editar_cliente', id=pessoa.cpf) }}">Editar</a>
+                                        <a
+                                                href="{{ url_for('deletar_cliente', id=pessoa.cpf) }}">Deletar</a></li>
+                                {% endif %}
+
+                                {% if pessoa.crm %}
+                                    <li class="collection-item"><a href="{{ url_for('editar_medico', id=pessoa.crm) }}">Editar</a>
+                                        <a
+                                                href="{{ url_for('deletar_medico', id=pessoa.crm) }}">Deletar</a></li>
+                                {% endif %}
+
                             {% endif %}
 
 
@@ -75,11 +81,15 @@
 
         </ul>
 
-        {% if titulo != 'Gerentes' %}
+        {% if titulo != 'Gerentes' and ('medico_logado' not in session or session['medico_logado'] == None) %}
             <a href="
 
-                {% if titulo == 'Clientes' %}{{ url_for('adicionar_cliente') }}{% endif %}{% if titulo == 'Medicos' %}{{ url_for('adicionar_medico') }}{% endif %}"
-           class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
+
+
+
+
+                    {% if titulo == 'Clientes' %}{{ url_for('adicionar_cliente') }}{% endif %}{% if titulo == 'Medicos' %}{{ url_for('adicionar_medico') }}{% endif %}"
+               class="waves-effect waves-light btn-small col s4 offset-s4">novo</a>
 
         {% endif %}
 

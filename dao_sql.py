@@ -5,9 +5,9 @@ CRIA_CLIENTE = 'INSERT INTO Cliente (nome, data_de_nascimento, cpf) VALUES (%s, 
 CRIA_CIRURGIA = 'INSERT INTO Cirurgia (cliente, medico, sala, data, hora, feedback) VALUES (%s, %s, %s,%s, %s, %s)'
 CRIA_SALA = 'INSERT INTO Sala (andar, numero, id) VALUES (%s, %s, %s) '
 
-MODIFICA_MEDICO = 'UPDATE Medico SET nome=%s, data_de_nascimento=%s, salario=%s, nome_de_usuario=%s , senha=%s , crm=%s WHERE crm=%s'
+MODIFICA_MEDICO = 'UPDATE Medico SET nome=%s, data_de_nascimento=%s, salario=%s, nome_de_usuario=%s , senha=%s , crm=%s WHERE cr m= %s'
 MODIFCA_CLIENTE = 'UPDATE Cliente SET nome=%s, data_de_nascimento=%s, cpf=%s WHERE cpf=%s;'
-MODIFICA_CIRURGIA = 'UPDATE Cirurgia SET cliente=%s, medico=%s, sala=%s, data=%s, hora=%s, feedback=%s WHERE id=%s '
+MODIFICA_CIRURGIA = 'UPDATE Cirurgia SET cliente=%s, medico=%s, sala=%s, data=%s, hora=%s, feedback=%s WHERE id =% s '
 MODIFCA_SALA = 'UPDATE Sala SET numero=%s, andar=%s , id=%s WHERE id=%s;'
 
 LISTAR_MEDICO = 'SELECT  nome, data_de_nascimento, salario , nome_de_usuario, senha, crm FROM Medico'
@@ -16,18 +16,18 @@ LISTAR_CIRURGIA = 'SELECT cliente , medico, sala, data, hora, feedback, id from 
 LISTAR_GERENTE = 'SELECT nome, nome_de_usuario, matricula FROM Gerente'
 LISTAR_SALA = 'SELECT  numero, andar, id FROM Sala'
 
-BUSCA_MEDICO = 'SELECT  nome, data_de_nascimento, salario , nome_de_usuario, senha, crm FROM Medico WHERE nome_de_usuario=%s'
-BUSCA_GERENTE = 'SELECT nome, data_de_nascimento, salario, nome_de_usuario, senha, matricula FROM Gerente WHERE  nome_de_usuario=%s'
+BUSCA_MEDICO = 'SELECT  nome, data_de_nascimento, salario , nome_de_usuario, senha, crm FROM Medico WHERE nome_de_usuario = %s'
+BUSCA_GERENTE = 'SELECT nome, data_de_nascimento, salario, nome_de_usuario, senha, matricula FROM Gerente WHERE  nome_de_usuario = %s'
 
-DELETA_MEDICO = 'DELETE FROM Medico WHERE crm=%s'
-DELETA_CLIENTE = 'DELETE FROM Cliente WHERE cpf=%s'
-DELETE_CIRURGIA = 'DELETE FROM Cirurgia WHERE id=%s'
-DELETA_SALA = 'DELETE FROM Sala WHERE id=%s'
+DELETA_MEDICO = 'DELETE FROM Medico WHERE crm = %s'
+DELETA_CLIENTE = 'DELETE FROM Cliente WHERE cpf = %s'
+DELETE_CIRURGIA = 'DELETE FROM Cirurgia WHERE id = %s'
+DELETA_SALA = 'DELETE FROM Sala WHERE id = %s'
 
-DAR_FEEDBACK = 'UPDATE Cirurgia SET feedback=%s WHERE id=%s '
-MUDAR_SALA = 'UPDATE Cirurgia SET sala=%s WHERE id=%s)'
+DAR_FEEDBACK = 'UPDATE Cirurgia SET feedback=%s WHERE id = %s '
+MUDAR_SALA = 'UPDATE Cirurgia SET sala=%s WHERE id = %s)'
 ADICIONAR_A_LISTA = 'INSERT INTO Lista_de_clientes (medico_crm, cliente_cpf) VALUE (%s, %s)'
-RETORNA_DA_LISTA = 'SELECT  medico_crm, cliente_cpf FROM Lista_de_clientes WHERE medico_crm=%s'
+RETORNA_DA_LISTA = 'SELECT  medico_crm, cliente_cpf FROM Lista_de_clientes WHERE medico_crm = %s'
 
 
 class ClienteDao:
@@ -39,7 +39,7 @@ class ClienteDao:
         cursor.execute(CRIA_CLIENTE, (cliente.nome, cliente.data_de_nascimento, cliente.cpf))
         self.__db.connection.commit()
 
-        cursor.execute(ADICIONAR_A_LISTA, medico.crm, cliente.cpf)
+        cursor.execute(ADICIONAR_A_LISTA, (medico.crm, cliente.cpf))
         self.__db.connection.commit()
 
     def atualiza_cliente(self, cliente):
@@ -55,7 +55,7 @@ class ClienteDao:
 
     def deleta_cliente(self, cpf):
         cursor = self.__db.connection.cursor()
-        cursor.execute(DELETA_CLIENTE, cpf)
+        cursor.execute(DELETA_CLIENTE, (cpf,))
         self.__db.connection.commit()
 
 
@@ -71,7 +71,7 @@ class GerenteDao:
 
     def busca_por_nome_de_usuario(self, nome_de_usuario):
         cursor = self.__db.connection.cursor()
-        cursor.execute(BUSCA_GERENTE, (nome_de_usuario))
+        cursor.execute(BUSCA_GERENTE, (nome_de_usuario,))
         tupla = cursor.fetchone()
         return traduz_gerente(tupla)
 
@@ -82,20 +82,20 @@ class MedicoDao:
 
     def busca_por_nome_de_usuario(self, nome_de_usuario):
         cursor = self.__db.connection.cursor()
-        cursor.execute(BUSCA_MEDICO, (nome_de_usuario))
+        cursor.execute(BUSCA_MEDICO, (nome_de_usuario,))
         tupla = cursor.fetchone()
         return traduz_medico(tupla)
 
     def criar_medico(self, medico):
         cursor = self.__db.connection.cursor()
-        cursor.execute(CRIA_MEDICO, medico.nome, medico.data_de_nascimento, medico.salario,
-                       medico.nome_de_usuario, medico.senha, medico.crm)
+        cursor.execute(CRIA_MEDICO, (medico.nome, medico.data_de_nascimento, medico.salario,
+                                     medico.nome_de_usuario, medico.senha, medico.crm))
         self.__db.connection.commit()
 
     def atualiza_medico(self, medico):
         cursor = self.__db.connection.cursor()
-        cursor.execute(MODIFICA_MEDICO, medico.nome, medico.data_de_nascimento, medico.salario,
-                       medico.nome_de_usuario, medico.senha, medico.crm, medico.crm)
+        cursor.execute(MODIFICA_MEDICO, (medico.nome, medico.data_de_nascimento, medico.salario,
+                                         medico.nome_de_usuario, medico.senha, medico.crm, medico.crm))
         self.__db.connection.commit()
 
     def lista_medico(self):
@@ -106,17 +106,17 @@ class MedicoDao:
 
     def deleta_medico(self, crm):
         cursor = self.__db.connection.cursor()
-        cursor.execute(DELETA_MEDICO, crm)
+        cursor.execute(DELETA_MEDICO, (crm,))
         self.__db.connection.commit()
 
     def dar_feedback(self, feedback):
         cursor = self.__db.connection.cursor()
-        cursor.execute(DAR_FEEDBACK, feedback)
+        cursor.execute(DAR_FEEDBACK, (feedback,))
         self.__db.connection.commit()
 
     def mudar_sala(self, sala):
         cursor = self.__db.connection.cursor()
-        cursor.execute(MUDAR_SALA, sala.id)
+        cursor.execute(MUDAR_SALA, (sala.id,))
         self.__db.connection.commit()
 
 
@@ -126,16 +126,16 @@ class CirurgiaDao:
 
     def criar_cirurgia(self, cirurgia):
         cursor = self.__db.connection.cursor()
-        cursor.execute(CRIA_CIRURGIA, cirurgia.cliente, cirurgia.medico,
-                       cirurgia.sala, cirurgia.data,
-                       cirurgia.hora, cirurgia.feedback)
+        cursor.execute(CRIA_CIRURGIA, (cirurgia.cliente, cirurgia.medico,
+                                       cirurgia.sala, cirurgia.data,
+                                       cirurgia.hora, cirurgia.feedback))
         self.__db.connection.commit()
 
     def atualiza_cirurgia(self, cirurgia):
         cursor = self.__db.connection.cursor()
-        cursor.execute(MODIFICA_CIRURGIA, cirurgia.cliente, cirurgia.medico,
-                       cirurgia.sala, cirurgia.data,
-                       cirurgia.hora, cirurgia.feedback, cirurgia.id)
+        cursor.execute(MODIFICA_CIRURGIA, (cirurgia.cliente, cirurgia.medico,
+                                           cirurgia.sala, cirurgia.data,
+                                           cirurgia.hora, cirurgia.feedback, cirurgia.id))
         self.__db.connection.commit()
 
     def lista_cirurgia(self):
@@ -146,19 +146,22 @@ class CirurgiaDao:
 
     def deleta_cirurgia(self, cirurgia):
         cursor = self.__db.connection.cursor()
-        cursor.execute(DELETE_CIRURGIA, cirurgia.id)
+        cursor.execute(DELETE_CIRURGIA, (cirurgia.id,))
         self.__db.connection.commit()
 
 
 class SalaDao:
+    def __init__(self, db):
+        self.__db = db
+
     def criar_sala(self, sala):
         cursor = self.__db.connection.cursor()
-        cursor.execute(CRIA_SALA, sala.andar, sala.numero, sala.id)
+        cursor.execute(CRIA_SALA, (sala.andar, sala.numero, sala.id))
         self.__db.connection.commit()
 
     def atualiza_sala(self, sala):
         cursor = self.__db.connection.cursor()
-        cursor.execute(MODIFCA_SALA, sala.andar, sala.numero, sala.id)
+        cursor.execute(MODIFCA_SALA, (sala.andar, sala.numero, sala.id))
         self.__db.connection.commit()
 
     def lista_sala(self):
@@ -169,7 +172,7 @@ class SalaDao:
 
     def deleta_sala(self, sala):
         cursor = self.__db.connection.cursor()
-        cursor.execute(DELETA_SALA, sala.id)
+        cursor.execute(DELETA_SALA, (sala.id,))
         self.__db.connection.commit()
 
 

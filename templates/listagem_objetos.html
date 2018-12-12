@@ -5,7 +5,7 @@
     <div class="row">
 
         <ul class="collapsible col s8 offset-s2">
-            {% if cirurgias %}
+            {% if cirurgias is defined %}
                 {% for cirurgia in cirurgias %}
                     <li>
                         <div class="collapsible-header"><i
@@ -16,9 +16,11 @@
                                 <li class="collection-item"> CPF: {{ cirurgia.cliente }}</li>
                                 <li class="collection-item"> CRM: {{ cirurgia.medico }}</li>
                                 <li class="collection-item"> Sala: {{ cirurgia.sala }}</li>
-                                <li class="collection-item"> CPF: {{ cirurgia.cliente }}</li>
-                                {% if cirurgia.feedback %}
+
+                                {% if cirurgia.feedback is defined %}
+
                                     <li class="collection-item">Feedback: {{ cirurgia.feedback }}</li>
+
                                 {% endif %}
 
                                 {% if 'medico_logado' not in session or session['medico_logado'] == None %}
@@ -30,7 +32,7 @@
                                 {% else %}
 
                                     <li class="collection-item">
-                                    <a href="{{ url_for('editar_cirurgia', id=cirurgia.id) }}">Editar</a>
+                                    <a href="{{ url_for('editar_cirurgia', id=cirurgia.id, tipo='medico') }}">Editar</a>
 
                                 {% endif %}
 

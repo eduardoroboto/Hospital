@@ -1,25 +1,18 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash, sessions
-from modelos import *
-from dao import *
+from modelos import Cliente, Medico, Gerente, Sala, Cirurgia
+from dao_file import *
 import secrets
-from flask_mysqldb import MySQL
+
 
 app = Flask(__name__)
 app.secret_key = secrets.secret_key
 
-ed = Cliente('Eduardo', '09-05-1996', '058')
-admin = Gerente('Pele', '05-09-1984', 1999, 'admin', '123', '0064')
-dr = Medico('Drauzio', '10-10-1949', 20000, 'varela', '123', '100')
-dr.adicionar_cliente(ed)
-sl = Sala(666, 0)
-cr = Cirurgia('058', '100', '6600', '30-12-2018', '10:10')
-cr.id = '0'
+lista_clientes = carrega_clientes()
+lista_medicos = carrega_medicos()
+lista_gerentes = carrega_gerentes()
+lista_salas = carrega_salas()
+lista_cirurgias = carrega_cirurgias()
 
-lista_clientes = [ed]
-lista_medicos = [dr]
-lista_gerentes = [admin]
-lista_salas = [sl]
-lista_cirurgias = [cr]
 
 
 @app.route('/')
@@ -54,6 +47,9 @@ def autenticacao():
             else:
                 flash('Você errou algo, tente novamente!')
                 return redirect(url_for('login'))
+
+    flash('Você errou algo, tente novamente!')
+    return redirect(url_for('login'))
 
 
 
@@ -97,10 +93,13 @@ def cirurgias():  # todo Confirmação se é o Gerente ou o medico
             return redirect(url_for('login'))
         else:
             cirurgias_do_medico = []
-            for cirurgia in lista_cirurgias:
-                for medico in lista_medicos:
-                    if cirurgia.medico == medico.crm:
-                        cirurgias_do_medico.append(cirurgia)
+
+            for medico in lista_medicos:
+                if medico.nome_de_usuario == session['medico_logado']:
+                    for cirurgia in lista_cirurgias:
+                        if cirurgia.medico == medico.crm:
+                            cirurgias_do_medico.append(cirurgia)
+
             return render_template('listagem_objetos.html', titulo='Cirurgias do Medico', cirurgias=cirurgias_do_medico)
 
 
@@ -109,45 +108,114 @@ def cirurgias():  # todo Confirmação se é o Gerente ou o medico
 
 
 @app.route('/listarGerente')
-def gerentes():  # todo Somente o gerente tem acesso.
-
-    return render_template('listagem_pessoas.html', titulo='Gerentes', pessoas=lista_gerentes)
+def gerentes():
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('listagem_pessoas.html', titulo='Gerentes', pessoas=lista_gerentes)
 
 
 @app.route('/listaCliente')
-def clientes():  # todo Analisar o caso do gerente e medico
-    return render_template('listagem_pessoas.html', titulo='Clientes', pessoas=lista_clientes)
+def clientes():
+    lista = []
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            for medico in lista_medicos:
+                if medico.nome_de_usuario == session['medico_logado']:
+                    for id in medico.lista_de_clientes:
+                        for cliente in lista_clientes:
+                            if cliente.cpf == id:
+                                lista.append(cliente)
+                    return render_template('listagem_pessoas.html', titulo='Clientes', pessoas=lista)
+    else:
+        return render_template('listagem_pessoas.html', titulo='Clientes', pessoas=lista_clientes)
 
 
 @app.route('/listarMedicos')
-def medicos():  # todo Somente o gerente tem acesso.
-    return render_template('listagem_pessoas.html', titulo='Medicos', pessoas=lista_medicos)
+def medicos():
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('listagem_pessoas.html', titulo='Medicos', pessoas=lista_medicos)
 
 
 @app.route('/listarSalas')
-def salas():  # todo Somente o gerente tem acesso.
-    return render_template('listagem_objetos.html', titulo='Salas', salas=lista_salas)
+def salas():
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('listagem_objetos.html', titulo='Salas', salas=lista_salas)
 
 
 @app.route('/addCliente')
 def adicionar_cliente():
-    return render_template('novo_pessoas.html', titulo='Adicionar Cliente', medicos=lista_medicos)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('novo_pessoas.html', titulo='Adicionar Cliente', medicos=lista_medicos)
 
 
 @app.route('/addMedico')
 def adicionar_medico():
-    return render_template('novo_pessoas.html', titulo='Adicionar Medico')
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('novo_pessoas.html', titulo='Adicionar Medico')
 
 
 @app.route('/addCirurgia')
 def adicionar_cirurgia():
-    return render_template('novo_objetos.html', titulo='Adicionar Cirurgia', medicos=lista_medicos,
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('novo_objetos.html', titulo='Adicionar Cirurgia', medicos=lista_medicos,
                            clientes=lista_clientes, salas=lista_salas)
 
 
 @app.route('/addSala')
 def adicionar_sala():
-    return render_template('novo_objetos.html', titulo='Adicionar Sala')
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        return render_template('novo_objetos.html', titulo='Adicionar Sala')
 
 
 @app.route('/criaCliente', methods=['POST', ])
@@ -161,6 +229,8 @@ def criar_cliente():
         if medico.crm == crm:
             medico.adicionar_cliente(new_cliente)
     lista_clientes.append(new_cliente)
+    salva_clientes(lista_clientes)
+    salva_medicos(lista_medicos)
     return redirect(url_for('area_de_trabalho'))
 
 
@@ -175,6 +245,7 @@ def cria_medico():
 
     new_medico = Medico(nome, data, salario, usurio, senha, crm)
     lista_medicos.append(new_medico)
+    salva_medicos(lista_medicos)
     return redirect(url_for('area_de_trabalho'))
 
 
@@ -188,6 +259,7 @@ def criar_cirurgia():
 
     new_cirurgia = Cirurgia(paciente, medico, sala, data, hora)
     lista_cirurgias.append(new_cirurgia)
+    salva_cirurgias(lista_cirurgias)
     return redirect(url_for('area_de_trabalho'))
 
 
@@ -199,41 +271,79 @@ def criar_sala():
     new_sala = Sala(numero, andar)
 
     lista_salas.append(new_sala)
+    salva_salas(lista_salas)
     return redirect(url_for('area_de_trabalho'))
 
 
 @app.route('/editCliente')
 def editar_cliente():
-    id = request.args.get('id')
-    for cliente in lista_clientes:
-        if cliente.cpf == id:
-            return render_template('edita_pessoas.html', titulo='Editando Cliente', pessoa=ed, medicos=lista_medicos,
-                                   id=id)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for cliente in lista_clientes:
+            if cliente.cpf == id:
+                return render_template('edita_pessoas.html', titulo='Editando Cliente', pessoa=cliente,
+                                       medicos=lista_medicos,
+                                       id=id)
 
 
 @app.route('/editMedico')
 def editar_medico():
-    id = request.args.get('id')
-    for medico in lista_medicos:
-        if medico.crm == id:
-            return render_template('edita_pessoas.html', titulo='Editando Medico', pessoa=medico, id=id)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        tipo = request.args.get('tipo')
+        for medico in lista_medicos:
+            if medico.crm == id:
+                return render_template('edita_pessoas.html', titulo='Editando Medico', pessoa=medico, id=id, tipo=tipo)
 
 
 @app.route('/editCirurgia')
 def editar_cirurgia():
     id = request.args.get('id')
-    for cirurgia in lista_cirurgias:
-        if cirurgia.id == id:
-            return render_template('edita_objetos.html', objeto=cirurgia, titulo='Editar Cirurgia',
-                                   medicos=lista_medicos, clientes=lista_clientes, salas=lista_salas, id=id)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+
+            for cirurgia in lista_cirurgias:
+                if cirurgia.id == id:
+                    return render_template('edita_cirurgia_medico.html', objeto=cirurgia, titulo='Editar Cirurgia',
+                                           medicos=lista_medicos, clientes=lista_clientes, salas=lista_salas, id=id)
+    else:
+        for cirurgia in lista_cirurgias:
+            if cirurgia.id == id:
+                return render_template('edita_objetos.html', objeto=cirurgia, titulo='Editar Cirurgia',
+                                       medicos=lista_medicos, clientes=lista_clientes, salas=lista_salas, id=id)
 
 
 @app.route('/editSala')
 def editar_sala():
-    id = request.args.get('id')
-    for sala in lista_salas:
-        if sala.id == id:
-            return render_template('edita_objetos.html', objeto=sala, titulo='Editar Sala', id=id)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for sala in lista_salas:
+            if sala.id == id:
+                return render_template('edita_objetos.html', objeto=sala, titulo='Editar Sala', id=id)
 
 
 @app.route('/upCliente', methods=['POST', ])
@@ -245,6 +355,11 @@ def atualiza_cliente():
     new_cliente = Cliente(nome, data, cpf)
     crm = request.form['medico_cliente']
     for medico in lista_medicos:
+        for paciente in medico.lista_de_clientes:
+            if paciente == id:
+                for cliente in lista_clientes:
+                    if cliente.cpf == id:
+                        medico.remover_cliente(cliente)
         if medico.crm == crm:
             medico.adicionar_cliente(new_cliente)
 
@@ -252,6 +367,7 @@ def atualiza_cliente():
         if cliente.cpf == id:
             lista_clientes.remove(cliente)
             lista_clientes.append(new_cliente)
+            salva_clientes(lista_clientes)
     return redirect(url_for('clientes'))
 
 
@@ -271,6 +387,7 @@ def atualiza_medico():
         if medico.crm == id:
             lista_medicos.remove(medico)
             lista_medicos.append(new_medico)
+            salva_medicos(lista_medicos)
 
     return redirect(url_for('medicos'))
 
@@ -289,6 +406,7 @@ def atualiza_cirurgia():
         if cirurgia.id == id:
             lista_cirurgias.remove(cirurgia)
             lista_cirurgias.append(new_cirurgia)
+            salva_cirurgias(lista_cirurgias)
 
     return redirect(url_for('cirurgias'))
 
@@ -305,56 +423,116 @@ def atualizar_sala():
         if sala.id == id:
             lista_salas.remove(sala)
             lista_salas.append(new_sala)
+            salva_salas(lista_salas)
 
     return redirect(url_for('salas'))
+
+
+@app.route('/feedback', methods=['POST', ])
+def dar_feedback():
+    id = request.args.get('id')
+    for cirurgia in lista_cirurgias:
+        if cirurgia.id == id:
+            medico = cirurgia.medico
+            paciente = cirurgia.cliente
+            sala = request.form['sala_cirurgia']
+            data = request.form['data_da_cirurgia']
+            hora = request.form['hora_da_cirurgia']
+            feedback = request.form['feedback']
+            new_cirurgia = Cirurgia(paciente, medico, sala, data, hora)
+            new_cirurgia.dar_feedback(feedback)
+            lista_cirurgias.remove(cirurgia)
+            lista_cirurgias.append(new_cirurgia)
+            salva_cirurgias(lista_cirurgias)
+            return redirect(url_for('cirurgias'))
+
+    return redirect(url_for('cirurgias'))
 
 
 @app.route('/delCliente')
 def deletar_cliente():
-    id = request.args.get('id')
-    for cliente in lista_clientes:
-        if cliente.cpf == id:
-            lista_clientes.remove(cliente)
-    return redirect(url_for('clientes'))
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for cliente in lista_clientes:
+            if cliente.cpf == id:
+                lista_clientes.remove(cliente)
+                salva_clientes(lista_clientes)
+                for medico in lista_medicos:
+                    for cliente in medico.lista_de_clientes:
+                        if cliente == id:
+                            medico.remover_cliente(cliente)
+                            salva_medicos(lista_medicos)
+        return redirect(url_for('clientes'))
 
-    pass
+
 
 
 @app.route('/delMedico')
 def deletar_medico():
-    id = request.args.get('id')
-    for medico in lista_medicos:
-        if medico.crm == id:
-            lista_medicos.remove(medico)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for medico in lista_medicos:
+            if medico.crm == id:
+                lista_medicos.remove(medico)
+                salva_medicos(lista_medicos)
 
-    return redirect(url_for('medicos'))
+        return redirect(url_for('medicos'))
 
 
 @app.route('/delCirurgia')
 def deletar_cirurgia():
-    id = request.args.get('id')
-    for cirurgia in lista_cirurgias:
-        if cirurgia.id == id:
-            lista_cirurgias.remove(cirurgia)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for cirurgia in lista_cirurgias:
+            if cirurgia.id == id:
+                lista_cirurgias.remove(cirurgia)
+                salva_cirurgias(lista_cirurgias)
 
-    return redirect(url_for('cirurgias'))
+        return redirect(url_for('cirurgias'))
 
-    pass
+
 
 
 @app.route('/delSala')
 def deletar_sala():
-    id = request.args.get('id')
-    for sala in lista_salas:
-        if sala.id == id:
-            lista_salas.remove(sala)
+    if 'gerente_logado' not in session or session['gerente_logado'] == None:
+        if 'medico_logado' not in session or session['medico_logado'] == None:
+            flash('Você não tem acesso, faça o login e tente novamente!')
+            return redirect(url_for('login'))
+        else:
+            flash('Você não tem permissão!')
+            return redirect(url_for('area_de_trabalho'))
+    else:
+        id = request.args.get('id')
+        for sala in lista_salas:
+            if sala.id == id:
+                lista_salas.remove(sala)
+                salva_salas(lista_salas)
 
-    return redirect(url_for('salas'))
+        return redirect(url_for('salas'))
 
 
-@app.route('/feedback')
-def dar_feedback():
-    pass
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@
     <link href="{{ url_for('static', filename='materialize.css') }}" type="text/css" rel="stylesheet"/>
     <link href="{{ url_for('static', filename='style.css') }}" type="text/css" rel="stylesheet"/>
 </head>
-<body>
+<body class="row">
 
 <nav class="blue darken-4" role="navigation">
     <div class="nav-wrapper container">
@@ -28,15 +28,7 @@
 
     </div>
 </nav>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class=flashes>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+
 <div class="abaixar container">
 
     {% block conteudo %}
@@ -52,6 +44,18 @@
 <script src="{{ url_for('static', filename='jquery.js') }}"></script>
 <script src="{{ url_for('static',filename='materialize.js') }}"></script>
 <script src="{{ url_for('static',filename='init.js') }}"></script>
+
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+                M.toast({html: '{{message}}'})
+            </script>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 
 </body>
 </html>
