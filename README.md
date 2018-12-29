@@ -1,7 +1,7 @@
 # Hospital
 
 Trabalho feito no semestre 2018.2 para a cadeira de Tecnologias da Internet, o professor deu a liberdade para utilizar qualquer
-tecnoligia, então como forma de aprender acabei fazendo em Flask.
+tecnologia, então como forma de aprender acabei fazendo em Flask.
 
 1. Cadastro de Cirurgia (Só o gerente que realiza essa ação)(Cadastro, Listagem,
 Alteração e Remoção)
